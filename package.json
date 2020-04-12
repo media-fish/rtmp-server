@@ -1,0 +1,67 @@
+{
+  "name": "@mediafish/rtmp-server",
+  "version": "0.0.1",
+  "description": "A server that receives an RTMP live stream and populates a readable object stream of the published audio, video, and data messages",
+  "main": "index.js",
+  "scripts": {
+    "lint": "xo",
+    "audit": "npm audit --audit-level high",
+    "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
+    "start": "node example.js",
+    "test": "npm run lint && ava --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/media-fish/rtmp-server.git"
+  },
+  "keywords": [
+    "RTMP",
+    "media",
+    "video",
+    "audio",
+    "streaming"
+  ],
+  "author": "Kuu Miyazaki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/media-fish/rtmp-server/issues"
+  },
+  "homepage": "https://github.com/media-fish/rtmp-server#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "ava": "^3.6.0",
+    "coveralls": "^3.0.11",
+    "nyc": "^15.0.1",
+    "rewire": "^5.0.0",
+    "xo": "^0.29.0"
+  },
+  "xo": {
+    "esnext": true,
+    "space": true,
+    "rules": {
+      "ava/no-ignored-test-files": 0,
+      "camelcase": 0,
+      "capitalized-comments": 0,
+      "dot-notation": 0,
+      "import/no-dynamic-require": 0,
+      "indent": 0,
+      "new-cap": 0,
+      "no-cond-assign": 0,
+      "no-constant-condition": 0,
+      "no-mixed-operators": 0,
+      "no-multi-assign": 0,
+      "one-var": 0,
+      "one-var-declaration-per-line": 0,
+      "padding-line-between-statements": 0,
+      "quotes": 0,
+      "unicorn/catch-error-name": 0,
+      "unicorn/filename-case": 0,
+      "unicorn/no-for-loop": 0,
+      "unicorn/no-zero-fractions": 0,
+      "unicorn/prevent-abbreviations": 0
+    }
+  },
+  "directories": {
+    "test": "test"
+  }
+}
