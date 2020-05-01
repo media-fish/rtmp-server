@@ -1,6 +1,5 @@
 const debug = require('debug');
-const reader = require('./buffer-reader');
-const writer = require('./buffer-writer');
+const {reader, writer} = require('@mediafish/buffer-operator');
 const chunkUtil = require('./chunk');
 
 const print = debug('rtmp-server');
