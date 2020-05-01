@@ -1,6 +1,6 @@
 {
   "name": "@mediafish/rtmp-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A server that receives an RTMP live stream and populates a readable object stream of the published audio, video, and data messages",
   "main": "index.js",
   "scripts": {
