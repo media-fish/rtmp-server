@@ -1,5 +1,4 @@
-const reader = require('./buffer-reader');
-const writer = require('./buffer-writer');
+const {reader, writer} = require('@mediafish/buffer-operator');
 
 function readMessage(buff, offset, prevMsgHeaders) {
   let messageHeader;

@@ -8,7 +8,7 @@
     "audit": "npm audit --audit-level high",
     "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "start": "node example.js",
-    "test": "npm run lint && ava --verbose"
+    "test": "npm run lint && npm run audit && ava --verbose"
   },
   "repository": {
     "type": "git",
@@ -27,13 +27,15 @@
     "url": "https://github.com/media-fish/rtmp-server/issues"
   },
   "homepage": "https://github.com/media-fish/rtmp-server#readme",
-  "dependencies": {},
+  "dependencies": {
+    "@mediafish/buffer-operator": "0.0.1"
+  },
   "devDependencies": {
-    "ava": "^3.6.0",
-    "coveralls": "^3.0.11",
+    "ava": "^3.8.1",
+    "coveralls": "^3.1.0",
     "nyc": "^15.0.1",
     "rewire": "^5.0.0",
-    "xo": "^0.29.0"
+    "xo": "^0.30.0"
   },
   "xo": {
     "esnext": true,
