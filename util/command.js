@@ -1,5 +1,5 @@
 const debug = require('debug');
-const amf0Util = require('./amf0');
+const amf0Util = require('@mediafish/amf0');
 const protoCtrlUtil = require('./protocol-control');
 const chunkUtil = require('./chunk');
 const RTMPConnection = require('../connection');
