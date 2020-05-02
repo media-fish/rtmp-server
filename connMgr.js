@@ -1,10 +1,10 @@
 const debug = require('debug');
+const {readAllValues} = require('@mediafish/amf0');
 const {Video, Audio, Data} = require('./types');
 const handshakeUtil = require('./util/handshake');
 const chunkUtil = require('./util/chunk');
 const protoCtrlUtil = require('./util/protocol-control');
 const commandUtil = require('./util/command');
-const {readAllValues} = require('./util/amf0');
 
 const print = debug('rtmp-server');
 

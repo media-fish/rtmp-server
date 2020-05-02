@@ -20,10 +20,16 @@ function writeHeader(buff, sc, type, length, streamId) {
   buff[base++] = length >> 8 & 0xFF;
   buff[base++] = length & 0xFF;
   buff[base++] = type;
+  /*
   buff[base++] = streamId >> 24 & 0xFF;
   buff[base++] = streamId >> 16 & 0xFF;
   buff[base++] = streamId >> 8 & 0xFF;
   buff[base++] = streamId & 0xFF;
+  */
+  buff[base++] = streamId & 0xFF;
+  buff[base++] = streamId >> 8 & 0xFF;
+  buff[base++] = streamId >> 16 & 0xFF;
+  buff[base++] = streamId >> 24 & 0xFF;
   return base;
 }
 

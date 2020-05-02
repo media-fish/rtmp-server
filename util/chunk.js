@@ -36,7 +36,6 @@ function readMessage(buff, offset, prevMsgHeaders) {
   return [offset, {basicHeader: {chunkType, chunkStreamId}, messageHeader, data}];
 }
 
-/*
 function readNumberLSBFirst(buff, offset, length) {
   let value = 0;
   for (let i = 0; i < length; i++) {
@@ -44,14 +43,14 @@ function readNumberLSBFirst(buff, offset, length) {
   }
   return [offset, value];
 }
-*/
 
 function readMsgType0(buff, offset) {
   let timestamp, messageLength, messageTypeId, messageStreamId;
   [offset, timestamp] = reader.readNumber(buff, offset, 3);
   [offset, messageLength] = reader.readNumber(buff, offset, 3);
   [offset, messageTypeId] = reader.readNumber(buff, offset, 1);
-  [offset, messageStreamId] = reader.readNumber(buff, offset, 4);
+  // [offset, messageStreamId] = reader.readNumber(buff, offset, 4);
+  [offset, messageStreamId] = readNumberLSBFirst(buff, offset, 4);
   if (timestamp === 0xFFFFFF) {
     // Read Extended Timestamp
     [offset, timestamp] = reader.readNumber(buff, offset, 4);
