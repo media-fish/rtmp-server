@@ -21,18 +21,22 @@ Only the publish command is supported. This server is only intended for live vid
 #### Example-1: A simple server with a single connection, single stream
 ```js
 const {createSimpleServer} = require('@mediafish/rtmp-server');
+const {print} = require('@mediafish/flv');
 // Start an RTMP server at rtmp://localhost/live
 createSimpleServer('/live')
 .on('data', ({timestamp, type, data}) => {
   console.log(`RTMP message: type=${type}, timestamp=${timestamp}`);
   switch (type) {
     case 'video':
+      // data is FLV video tag (AVC)
+      print(data);
+      break;
     case 'audio':
-      // data is a Buffer
-      console.log(`Buffer length=${data.length}`);
+      // data is FLV audio tag (AAC)
+      print(data);
       break;
     case 'data':
-      // data is an array
+      // data is an array of JS object
       for (const item of data) {
         console.log(`${JSON.stringify(item, null, 4)}`);
       }
@@ -85,9 +89,12 @@ function handleMessage({timestamp, type, data}) {
   console.log(`RTMP message: type=${type}, timestamp=${timestamp}`);
   switch (type) {
     case 'video':
+      // data is FLV video tag (AVC)
+      print(data);
+      break;
     case 'audio':
-      // data is a Buffer
-      console.log(`Buffer length=${data.length}`);
+      // data is FLV audio tag (AAC)
+      print(data);
       break;
     case 'data':
       // data is an array
@@ -204,12 +211,12 @@ This section describes the structure of the messages that can be read from `RTMP
 ### `Video` (extends `Message`)
 | Property         | Type          | Required | Default | Description   |
 | ---------------- | ------------- | -------- | ------- | ------------- |
-| `data` | `Buffer`     | Yes      | N/A     | A buffer object that contains media data  |
+| `data` | `AVC`    | Yes      | N/A     | An isntance of `AVC` (See [@mediafish/flv](https://github.com/media-fish/flv#readme)) |
 
 ### `Audio` (extends `Message`)
 | Property         | Type          | Required | Default | Description   |
 | ---------------- | ------------- | -------- | ------- | ------------- |
-| `data` | `Buffer`     | Yes      | N/A     | A buffer object that contains media data  |
+| `data` | `AAC`     | Yes      | N/A     | An isntance of `AAC` (See [@mediafish/flv](https://github.com/media-fish/flv#readme))  |
 
 ### `Data` (extends `Message`)
 | Property         | Type          | Required | Default | Description   |

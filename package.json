@@ -28,8 +28,9 @@
   },
   "homepage": "https://github.com/media-fish/rtmp-server#readme",
   "dependencies": {
-    "@mediafish/amf0": "0.0.1",
-    "@mediafish/buffer-operator": "0.0.2"
+    "@mediafish/amf0": "0.0.2",
+    "@mediafish/buffer-operator": "0.0.4",
+    "@mediafish/flv": "^0.1.0"
   },
   "devDependencies": {
     "ava": "^3.8.1",
