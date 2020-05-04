@@ -1,6 +1,7 @@
 const {Writable, Transform} = require('stream');
 const test = require('ava');
 const rewire = require('rewire');
+const {print} = require('@mediafish/flv');
 const {createServer: mockCreateServer} = require('../helper/mock-server');
 const MockSocket = require('../helper/mock-socket');
 
@@ -30,9 +31,11 @@ class Logger extends Transform {
   _transform(obj, _, cb) {
     const {type, timestamp, data} = obj;
     if (type === 'video') {
-      console.log(`${timestamp} [Video] length=${data.length}`);
+      console.log(`timestamp: ${timestamp}`);
+      print(data);
     } else if (type === 'audio') {
-      console.log(`${timestamp} [Audio] length=${data.length}`);
+      console.log(`timestamp: ${timestamp}`);
+      print(data);
     } else if (type === 'data') {
       console.log(`${timestamp} [Data] ${JSON.stringify(data, null, 4)}`);
     }

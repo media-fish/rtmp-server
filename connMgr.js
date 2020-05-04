@@ -1,5 +1,6 @@
 const debug = require('debug');
 const {readAllValues} = require('@mediafish/amf0');
+const {readAudio, readVideo} = require('@mediafish/flv');
 const {Video, Audio, Data} = require('./types');
 const handshakeUtil = require('./util/handshake');
 const chunkUtil = require('./util/chunk');
@@ -152,7 +153,10 @@ class ConnectionManager {
         print(`Audio Message: messageTypeId=${messageTypeId}, messageStreamId=${messageStreamId}`);
         readable = this.streams.get(messageStreamId);
         if (readable) {
-          readable.push(new Audio(timestamp, chunk.data));
+          const audioData = chunk.data;
+          const [len, aac] = readAudio(audioData, 0, audioData.length);
+          print(`\tAAC data (len=${len})`);
+          readable.push(new Audio(timestamp, aac));
         } else {
           print(`Unknown stream ID: ${messageStreamId}`);
         }
@@ -162,7 +166,10 @@ class ConnectionManager {
         print(`Video Message: messageTypeId=${messageTypeId}, messageStreamId=${messageStreamId}`);
         readable = this.streams.get(messageStreamId);
         if (readable) {
-          readable.push(new Video(timestamp, chunk.data));
+          const videoData = chunk.data;
+          const [len, avc] = readVideo(videoData, 0, videoData.length);
+          print(`\tAVC data (len=${len})`);
+          readable.push(new Video(timestamp, avc));
         } else {
           print(`Unknown stream ID: ${messageStreamId}`);
         }

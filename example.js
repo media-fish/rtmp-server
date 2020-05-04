@@ -1,6 +1,7 @@
 // const fs = require('fs');
 // const path = require('path');
 const {Writable, Transform} = require('stream');
+const {print} = require('@mediafish/flv');
 const {createSimpleServer} = require('.');
 
 class Terminator extends Writable {
@@ -22,8 +23,9 @@ class Logger extends Transform {
   _transform(obj, _, cb) {
     const {type, timestamp, data} = obj;
     if (type === 'video') {
-      console.log(`${timestamp} [Video] length=${data.length}`);
-      /*
+      console.log(`timestamp: ${timestamp}`);
+      print(data);
+/*
       if (this.index < 20) {
         const filePath = path.join(__dirname, `video-${this.index++}.dat`);
         fs.writeFile(filePath, data, err => {
@@ -32,11 +34,22 @@ class Logger extends Transform {
           }
           console.log(`Video writen to ${filePath}`);
         });
-        this.videoSaved = true;
       }
-      */
+*/
     } else if (type === 'audio') {
-      console.log(`${timestamp} [Audio] length=${data.length}`);
+      console.log(`timestamp: ${timestamp}`);
+      print(data);
+/*
+      if (this.index < 20) {
+        const filePath = path.join(__dirname, `audio-${this.index++}.dat`);
+        fs.writeFile(filePath, data, err => {
+          if (err) {
+            return console.error(err.stack);
+          }
+          console.log(`Video writen to ${filePath}`);
+        });
+      }
+*/
     } else if (type === 'data') {
       console.log(`${timestamp} [Data] ${JSON.stringify(data, null, 4)}`);
     }
