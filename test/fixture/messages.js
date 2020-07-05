@@ -93,6 +93,11 @@ base = writeHeader(AUDIO, 4, 8, 4, 1);
 str = 'af001210';
 writeBody(AUDIO, str, base);
 
+const AUDIO_WITH_EXTRA_BYTES = Buffer.alloc(20);
+base = writeHeader(AUDIO_WITH_EXTRA_BYTES, 4, 8, 4, 1);
+str = 'af0012103FFFFFFF';
+writeBody(AUDIO_WITH_EXTRA_BYTES, str, base);
+
 const VIDEO = Buffer.alloc(58);
 base = writeHeader(VIDEO, 4, 9, 46, 1);
 str = `
@@ -100,6 +105,14 @@ str = `
 000468efbcb0
 `;
 writeBody(VIDEO, str, base);
+
+const VIDEO_WITH_EXTRA_BYTES = Buffer.alloc(62);
+base = writeHeader(VIDEO_WITH_EXTRA_BYTES, 4, 9, 46, 1);
+str = `
+17000000000164001fffe1001a6764001facd940d8117b9210000003001000000303c8f183196001
+000468efbcb03FFFFFFF
+`;
+writeBody(VIDEO_WITH_EXTRA_BYTES, str, base);
 
 const CONNECT_RES = Buffer.alloc(202);
 base = writeHeader(CONNECT_RES, 3, 20, 190, 0);
@@ -137,7 +150,9 @@ module.exports = {
     PUBLISH,
     PARAMS,
     AUDIO,
-    VIDEO
+    AUDIO_WITH_EXTRA_BYTES,
+    VIDEO,
+    VIDEO_WITH_EXTRA_BYTES
   },
   res: {
     S0S1S2,

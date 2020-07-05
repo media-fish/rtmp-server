@@ -103,3 +103,15 @@ test.cb('createSimpleServer', t => {
   })
   .pipe(new Terminator());
 });
+
+test.cb('Allow extra bytes', t => {
+  const {server} = createServer()
+  .once('/live', factory(t, handleConnection))
+  .on('error', err => {
+    console.error(err.stack);
+    t.fail();
+    t.end();
+  });
+  const socket = new MockSocket(t, {extraBytes: true});
+  server.emit('connection', socket);
+});

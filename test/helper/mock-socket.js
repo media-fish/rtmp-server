@@ -2,9 +2,10 @@ const {Duplex} = require('stream');
 const {req, res} = require('../fixture/messages');
 
 class MockSocket extends Duplex {
-  constructor(t, options) {
+  constructor(t, options = {}) {
     super(options);
     this.t = t;
+    this.extraBytes = options.extraBytes;
     this.state = 'uninitialized';
   }
 
@@ -20,12 +21,20 @@ class MockSocket extends Duplex {
       return;
     }
     if (this.state === 'params-sent') {
-      this.push(req.AUDIO);
+      if (this.extraBytes) {
+        this.push(req.AUDIO_WITH_EXTRA_BYTES);
+      } else {
+        this.push(req.AUDIO);
+      }
       this.state = 'audio-sent';
       return;
     }
     if (this.state === 'audio-sent') {
-      this.push(req.VIDEO);
+      if (this.extraBytes) {
+        this.push(req.VIDEO_WITH_EXTRA_BYTES);
+      } else {
+        this.push(req.VIDEO);
+      }
       this.state = 'video-sent';
       return;
     }
