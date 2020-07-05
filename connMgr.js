@@ -9,6 +9,14 @@ const commandUtil = require('./util/command');
 
 const print = debug('rtmp-server');
 
+function tryCatch(body, errorHandler) {
+  try {
+    return body();
+  } catch (err) {
+    return errorHandler(err);
+  }
+}
+
 class ConnectionManager {
   constructor(server, socket, maxStreamNum = 1) {
     this.server = server;
@@ -50,10 +58,17 @@ class ConnectionManager {
         offset = this.doHandshake(buff, offset);
       }
       if (this.handshakeState === 'handshake-done') {
-        // while (offset < buff.length) {
-        while (buff.length - offset > 2) {
+        while (offset < buff.length) {
           // print(`\tbuff.length=${buff.length}, offset=${offset}`);
-          [err, offset] = this.processMessage(buff, offset);
+          tryCatch(
+            () => {
+              [err, offset] = this.processMessage(buff, offset);
+            },
+            () => {
+              print(`Extra bytes found. Skipping trailing ${buff.length - offset} bytes.`);
+              offset = buff.length;
+            }
+          );
           if (noMoreProcess) {
             break;
           }
