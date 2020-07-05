@@ -33,11 +33,11 @@
     "@mediafish/flv": "^0.1.0"
   },
   "devDependencies": {
-    "ava": "^3.8.1",
+    "ava": "^3.9.0",
     "coveralls": "^3.1.0",
-    "nyc": "^15.0.1",
+    "nyc": "^15.1.0",
     "rewire": "^5.0.0",
-    "xo": "^0.30.0"
+    "xo": "^0.32.1"
   },
   "xo": {
     "esnext": true,
