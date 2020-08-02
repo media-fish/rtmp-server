@@ -11,9 +11,10 @@ class RTMPServer extends EventEmitter {
     this.options = options;
     this.server = null;
     this.connections = new Set();
-    this.once('newListener', () => {
+    this.once('newListener', pathName => {
       if (this.server) {
-        return;
+        const addr = this.server.address();
+        return print(`Listening on rtmp://localhost:${addr.port}${pathName}`);
       }
       this.server = createServer(socket => {
         print(`[RTMPServer] Incomming connection: ${socket.remoteAddress}:${socket.remotePort}`);
@@ -37,7 +38,7 @@ class RTMPServer extends EventEmitter {
       });
       this.server.listen(this.options.port || 1935, () => {
         const addr = this.server.address();
-        print(`Listening on port: ${addr.port}`);
+        print(`Listening on rtmp://localhost:${addr.port}${pathName}`);
       });
     });
   }
