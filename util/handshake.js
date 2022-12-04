@@ -1,6 +1,7 @@
-// const debug = require('debug');
-const {reader, writer} = require('@mediafish/buffer-operator');
-// const print = debug('rtmp-server');
+import {Buffer} from 'node:buffer';
+// import debug from 'debug';
+import {reader, writer} from '@mediafish/buffer-operator';
+// import print from 'rtmp-server';
 
 const S0 = Buffer.from([0x03]);
 const S1 = Buffer.alloc(1536);
@@ -48,7 +49,7 @@ function readC0(buff, offset) {
 function readC1(buff, offset) {
   let epocTime;
   [offset, epocTime] = reader.readNumber(buff, offset, 4);
-  const epocTimeReadAt = new Date().getTime();
+  const epocTimeReadAt = Date.now();
   offset += 4;
   const randomValue = buff.slice(offset, offset + 1528);
   offset += 1528;
@@ -66,11 +67,13 @@ function readC2(buff, offset) {
   return [offset, {epocTime, epocTimeReadAt, randomValue}];
 }
 
-module.exports = {
+const handshakeUtil = {
   writeS0S1,
   writeS2,
   writeS0S1S2,
   readC0,
   readC1,
-  readC2
+  readC2,
 };
+
+export default handshakeUtil;

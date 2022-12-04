@@ -1,6 +1,7 @@
-const {reader, writer} = require('@mediafish/buffer-operator');
+import {Buffer} from 'node:buffer';
+import {reader, writer} from '@mediafish/buffer-operator';
 
-function readMessage(buff, offset, prevMsgHeaders) {
+export function readMessage(buff, offset, prevMsgHeaders) {
   let messageHeader;
   const chunkType = (buff[offset] >> 6) & 0x03;
   let chunkStreamId = buff[offset] & 0x3F;
@@ -51,7 +52,7 @@ function readMsgType0(buff, offset) {
   [offset, messageTypeId] = reader.readNumber(buff, offset, 1);
   // [offset, messageStreamId] = reader.readNumber(buff, offset, 4);
   [offset, messageStreamId] = readNumberLSBFirst(buff, offset, 4);
-  if (timestamp === 0xFFFFFF) {
+  if (timestamp === 0xFF_FF_FF) {
     // Read Extended Timestamp
     [offset, timestamp] = reader.readNumber(buff, offset, 4);
   }
@@ -63,7 +64,7 @@ function readMsgType1(buff, offset, prevMsgHeader) {
   [offset, delta] = reader.readNumber(buff, offset, 3);
   [offset, messageLength] = reader.readNumber(buff, offset, 3);
   [offset, messageTypeId] = reader.readNumber(buff, offset, 1);
-  if (delta === 0xFFFFFF) {
+  if (delta === 0xFF_FF_FF) {
     // Read Extended Timestamp
     [offset, delta] = reader.readNumber(buff, offset, 4);
   }
@@ -78,7 +79,7 @@ function readMsgType1(buff, offset, prevMsgHeader) {
 function readMsgType2(buff, offset, prevMsgHeader) {
   let delta;
   [offset, delta] = reader.readNumber(buff, offset, 3);
-  if (delta === 0xFFFFFF) {
+  if (delta === 0xFF_FF_FF) {
     // Read Extended Timestamp
     [offset, delta] = reader.readNumber(buff, offset, 4);
   }
@@ -104,16 +105,16 @@ function readMsgType3(buff, offset, prevMsgHeader) {
   return [offset, {timestamp, delta, messageLength, messageTypeId, messageStreamId}];
 }
 
-function writeProtocolMessage(socket, msgHeader, msgData, chunkStreamId = 2) {
+export function writeProtocolMessage(socket, msgHeader, msgData, chunkStreamId = 2) {
   writeMsgType0(socket, {chunkType: 0, chunkStreamId}, msgHeader, msgData);
 }
 
-function writeMessage(socket, msgHeader, msgData, prevMsgHeader) {
+export function writeMessage(socket, msgHeader, msgData, prevMsgHeader) {
   let isDelta = false, chunkType = 0;
   const chunkStreamId = 2; // Only Protocol Control Message is handled
-  if (msgHeader.timestamp > 0xFFFFFFFF) {
+  if (msgHeader.timestamp > 0xFF_FF_FF_FF) {
     // Need to wrap around
-    msgHeader.timestamp %= 0x100000000;
+    msgHeader.timestamp %= 0x1_00_00_00_00;
   } else if (prevMsgHeader) {
     msgHeader.delta = msgHeader.timestamp - prevMsgHeader.timestamp;
     isDelta = true;
@@ -149,14 +150,14 @@ function writeMessage(socket, msgHeader, msgData, prevMsgHeader) {
 
 function writeMsgType0(socket, {chunkType, chunkStreamId}, msgHeader, msgData) {
   let extended = false, bufferLength = 12 + msgHeader.messageLength;
-  if (msgHeader.timestamp >= 0xFFFFFF) {
+  if (msgHeader.timestamp >= 0xFF_FF_FF) {
     extended = true;
     bufferLength = 16 + msgHeader.messageLength;
   }
   const buff = Buffer.alloc(bufferLength);
   buff[0] = (chunkType << 6 | chunkStreamId);
   if (extended) {
-    writer.writeNumber(0xFFFFFF, buff, 1, 3);
+    writer.writeNumber(0xFF_FF_FF, buff, 1, 3);
   } else {
     writer.writeNumber(msgHeader.timestamp, buff, 1, 3);
   }
@@ -172,14 +173,14 @@ function writeMsgType0(socket, {chunkType, chunkStreamId}, msgHeader, msgData) {
 
 function writeMsgType1(socket, {chunkType, chunkStreamId}, msgHeader, msgData) {
   let extended = false, bufferLength = 8 + msgHeader.messageLength;
-  if (msgHeader.delta >= 0xFFFFFF) {
+  if (msgHeader.delta >= 0xFF_FF_FF) {
     extended = true;
     bufferLength = 12 + msgHeader.messageLength;
   }
   const buff = Buffer.alloc(bufferLength);
   buff[0] = (chunkType << 6 | chunkStreamId);
   if (extended) {
-    writer.writeNumber(0xFFFFFF, buff, 1, 3);
+    writer.writeNumber(0xFF_FF_FF, buff, 1, 3);
   } else {
     writer.writeNumber(msgHeader.timestamp, buff, 1, 3);
   }
@@ -194,14 +195,14 @@ function writeMsgType1(socket, {chunkType, chunkStreamId}, msgHeader, msgData) {
 
 function writeMsgType2(socket, {chunkType, chunkStreamId}, msgHeader, msgData) {
   let extended = false, bufferLength = 4 + msgHeader.messageLength;
-  if (msgHeader.delta >= 0xFFFFFF) {
+  if (msgHeader.delta >= 0xFF_FF_FF) {
     extended = true;
     bufferLength = 8 + msgHeader.messageLength;
   }
   const buff = Buffer.alloc(bufferLength);
   buff[0] = (chunkType << 6 | chunkStreamId);
   if (extended) {
-    writer.writeNumber(0xFFFFFF, buff, 1, 3);
+    writer.writeNumber(0xFF_FF_FF, buff, 1, 3);
     writer.writeNumber(msgHeader.timestamp, buff, 4, 4);
   } else {
     writer.writeNumber(msgHeader.timestamp, buff, 1, 3);
@@ -217,8 +218,3 @@ function writeMsgType3(socket, {chunkType, chunkStreamId}, msgHeader, msgData) {
   socket.write(buff);
 }
 
-module.exports = {
-  readMessage,
-  writeMessage,
-  writeProtocolMessage
-};

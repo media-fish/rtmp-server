@@ -1,8 +1,8 @@
-// const fs = require('fs');
-// const path = require('path');
-const {Writable, Transform} = require('stream');
-const {print} = require('@mediafish/flv');
-const {createSimpleServer} = require('.');
+// import fs from 'node:fs';
+// import path from 'node:path';
+import {Writable, Transform} from 'node:stream';
+import {print} from '@mediafish/flv';
+import {createSimpleServer} from './index.js';
 
 class Terminator extends Writable {
   constructor() {
@@ -25,7 +25,7 @@ class Logger extends Transform {
     if (type === 'video') {
       console.log(`timestamp: ${timestamp}`);
       print(data);
-/*
+      /*
       if (this.index < 20) {
         const filePath = path.join(__dirname, `video-${this.index++}.dat`);
         fs.writeFile(filePath, data, err => {
@@ -35,11 +35,11 @@ class Logger extends Transform {
           console.log(`Video writen to ${filePath}`);
         });
       }
-*/
+      */
     } else if (type === 'audio') {
       console.log(`timestamp: ${timestamp}`);
       print(data);
-/*
+      /*
       if (this.index < 20) {
         const filePath = path.join(__dirname, `audio-${this.index++}.dat`);
         fs.writeFile(filePath, data, err => {
@@ -49,7 +49,7 @@ class Logger extends Transform {
           console.log(`Video writen to ${filePath}`);
         });
       }
-*/
+      */
     } else if (type === 'data') {
       console.log(`${timestamp} [Data] ${JSON.stringify(data, null, 4)}`);
     }
@@ -58,11 +58,11 @@ class Logger extends Transform {
 }
 
 createSimpleServer('/live')
-.pipe(new Logger())
-.on('finish', () => {
-  console.log('Finish!');
-})
-.on('error', err => {
-  console.error(err.stack);
-})
-.pipe(new Terminator());
+  .pipe(new Logger())
+  .on('finish', () => {
+    console.log('Finish!');
+  })
+  .on('error', err => {
+    console.error(err.stack);
+  })
+  .pipe(new Terminator());

@@ -1,13 +1,11 @@
-const EventEmitter = require('events');
-// const debug = require('debug');
+import {EventEmitter} from 'node:events';
+// import debug from 'debug';
 
 // const print = debug('rtmp-server');
 
-class RTMPConnection extends EventEmitter {
+export default class RTMPConnection extends EventEmitter {
   constructor(path) {
     super();
     this.path = path;
   }
 }
-
-module.exports = RTMPConnection;

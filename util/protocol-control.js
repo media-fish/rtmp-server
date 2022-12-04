@@ -1,9 +1,10 @@
-const debug = require('debug');
-const {reader, writer} = require('@mediafish/buffer-operator');
-const chunkUtil = require('./chunk');
+import {Buffer} from 'node:buffer';
+import debug from 'debug';
+import {reader, writer} from '@mediafish/buffer-operator';
+import {writeProtocolMessage} from './chunk.js';
 
 const print = debug('rtmp-server');
-const MAX_MESSAGE_LENGTH = 0xFFFFFF;
+const MAX_MESSAGE_LENGTH = 0xFF_FF_FF;
 const buff = Buffer.alloc(4);
 const buff5 = Buffer.alloc(5);
 const buff6 = Buffer.alloc(6);
@@ -59,9 +60,9 @@ function setChunkSize(socket, chunkSize) {
     delta: 0,
     messageLength: 4,
     messageTypeId: 1,
-    messageStreamId: 0
+    messageStreamId: 0,
   };
-  chunkUtil.writeProtocolMessage(socket, msgHeader, buff);
+  writeProtocolMessage(socket, msgHeader, buff);
   print(`[Set Chunk Size] Sent: chunkSize = ${chunkSize}`);
 }
 
@@ -72,9 +73,9 @@ function sendAck(socket, sequenceNumber) {
     delta: 0,
     messageLength: 4,
     messageTypeId: 3,
-    messageStreamId: 0
+    messageStreamId: 0,
   };
-  chunkUtil.writeProtocolMessage(socket, msgHeader, buff);
+  writeProtocolMessage(socket, msgHeader, buff);
   print(`[Acknowledgement] Sent: sequenceNumber = ${sequenceNumber}`);
 }
 
@@ -85,9 +86,9 @@ function sendWindowAckSize(socket, windowSize) {
     delta: 0,
     messageLength: 4,
     messageTypeId: 5,
-    messageStreamId: 0
+    messageStreamId: 0,
   };
-  chunkUtil.writeProtocolMessage(socket, msgHeader, buff);
+  writeProtocolMessage(socket, msgHeader, buff);
   print(`[Window Acknowledgement Size] Sent: windowSize = ${windowSize}`);
 }
 
@@ -99,9 +100,9 @@ function setPeerBandWidth(socket, windowSize, limitType) {
     delta: 0,
     messageLength: 5,
     messageTypeId: 6,
-    messageStreamId: 0
+    messageStreamId: 0,
   };
-  chunkUtil.writeProtocolMessage(socket, msgHeader, buff5);
+  writeProtocolMessage(socket, msgHeader, buff5);
   print(`[Set Peer Bandwidth] Sent: windowSize = ${windowSize}, limitType=${limitType}`);
 }
 
@@ -113,17 +114,17 @@ function setUserControlMessage(socket, streamId) {
     delta: 0,
     messageLength: 6,
     messageTypeId: 99,
-    messageStreamId: 0
+    messageStreamId: 0,
   };
-  chunkUtil.writeProtocolMessage(socket, msgHeader, buff6);
+  writeProtocolMessage(socket, msgHeader, buff6);
   print(`[Set User Control Message] Sent: streamId = ${streamId}`);
 }
 
-module.exports = {
+export {
   processMessage,
   setChunkSize,
   sendAck,
   sendWindowAckSize,
   setPeerBandWidth,
-  setUserControlMessage
+  setUserControlMessage,
 };

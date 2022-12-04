@@ -1,16 +1,16 @@
-const debug = require('debug');
-const {readAllValues} = require('@mediafish/amf0');
-const {readAudio, readVideo} = require('@mediafish/flv');
-const {Video, Audio, Data} = require('./types');
-const handshakeUtil = require('./util/handshake');
-const chunkUtil = require('./util/chunk');
-const protoCtrlUtil = require('./util/protocol-control');
-const commandUtil = require('./util/command');
+import debug from 'debug';
+import {readAllValues} from '@mediafish/amf0';
+import {readAudio, readVideo} from '@mediafish/flv';
+import {Video, Audio, Data} from './types.js';
+import handshakeUtil from './util/handshake.js';
+import {readMessage} from './util/chunk.js';
+import {processMessage as processProtoCtrl, sendAck} from './util/protocol-control.js';
+import {processMessage as processCommand} from './util/command.js';
 
 const print = debug('rtmp-server');
 const MIN_MESSAGE_LEN = 5;
 
-class ConnectionManager {
+export default class ConnectionManager {
   constructor(server, socket, maxStreamNum = 1) {
     this.server = server;
     this.socket = socket;
@@ -21,10 +21,10 @@ class ConnectionManager {
     this.state = 'unconnected';
 
     this.timeout = 15; // in seconds
-    this.epocTime = new Date().getTime();
+    this.epocTime = Date.now();
     this.prevRecievedMsgHeaders = [];
     this.maxChunkSize = 4096;
-    this.windowSize = 5000000;
+    this.windowSize = 5_000_000;
     this.lastAckSize = 0;
     this.maxStreamNum = maxStreamNum;
 
@@ -106,7 +106,7 @@ class ConnectionManager {
 
   processMessage(buff, offset) {
     let chunk, err = null, readable = null;
-    [offset, chunk] = chunkUtil.readMessage(buff, offset, this.prevRecievedMsgHeaders);
+    [offset, chunk] = readMessage(buff, offset, this.prevRecievedMsgHeaders);
     if (!chunk) {
       return [err, offset];
     }
@@ -119,7 +119,7 @@ class ConnectionManager {
       case 6:
         // Protocol Control Message
         print(`Protocol Control Message: messageTypeId=${messageTypeId}`);
-        err = protoCtrlUtil.processMessage(this, chunk);
+        err = processProtoCtrl(this, chunk);
         break;
       case 4:
         // User Control Message
@@ -129,7 +129,7 @@ class ConnectionManager {
       case 17:
         // Command Message
         print(`Command Message: messageTypeId=${messageTypeId}`);
-        err = commandUtil.processMessage(this, chunk);
+        err = processCommand(this, chunk);
         break;
       case 18:
       case 15:
@@ -191,7 +191,7 @@ class ConnectionManager {
 
   sendAckIfNeeded() {
     if (this.lastAckSize === 0 || this.recievedBytes - this.lastAckSize >= this.windowSize) {
-      protoCtrlUtil.sendAck(this.socket, this.recievedBytes);
+      sendAck(this.socket, this.recievedBytes);
       this.lastAckSize = this.recievedBytes;
     }
   }
@@ -216,5 +216,3 @@ class ConnectionManager {
     this.prevRecievedMsgHeaders = [];
   }
 }
-
-module.exports = ConnectionManager;

@@ -3,12 +3,13 @@
   "version": "0.1.2",
   "description": "A server that receives an RTMP live stream and populates a readable object stream of the published audio, video, and data messages",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "lint": "xo",
     "audit": "npm audit --audit-level high",
     "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "start": "node example.js",
-    "test": "npm run lint && npm run audit && ava --verbose"
+    "test": "npm run lint && npm run audit && NODE_OPTIONS=--loader=esmock ava --verbose"
   },
   "repository": {
     "type": "git",
@@ -28,28 +29,31 @@
   },
   "homepage": "https://github.com/media-fish/rtmp-server#readme",
   "dependencies": {
-    "@mediafish/amf0": "0.0.3",
-    "@mediafish/buffer-operator": "0.1.0",
-    "@mediafish/flv": "^0.2.0"
+    "@mediafish/amf0": "0.0.5",
+    "@mediafish/buffer-operator": "0.1.2",
+    "@mediafish/flv": "^0.2.2"
   },
   "devDependencies": {
-    "ava": "^3.11.0",
-    "coveralls": "^3.1.0",
+    "ava": "^5.1.0",
+    "coveralls": "^3.1.1",
+    "esmock": "^2.1.0",
     "nyc": "^15.1.0",
-    "rewire": "^5.0.0",
-    "xo": "^0.32.1"
+    "xo": "^0.53.1"
   },
   "xo": {
     "esnext": true,
     "space": true,
     "rules": {
       "ava/no-ignored-test-files": 0,
+      "ava/no-unknown-modifiers": 0,
       "camelcase": 0,
       "capitalized-comments": 0,
       "dot-notation": 0,
       "import/no-dynamic-require": 0,
       "indent": 0,
+      "max-params": 0,
       "new-cap": 0,
+      "no-bitwise": 0,
       "no-cond-assign": 0,
       "no-constant-condition": 0,
       "no-mixed-operators": 0,
@@ -61,8 +65,11 @@
       "unicorn/catch-error-name": 0,
       "unicorn/filename-case": 0,
       "unicorn/no-for-loop": 0,
+      "unicorn/no-useless-switch-case": 0,
       "unicorn/no-zero-fractions": 0,
-      "unicorn/prevent-abbreviations": 0
+      "unicorn/prefer-switch": 0,
+      "unicorn/prevent-abbreviations": 0,
+      "unicorn/switch-case-braces": 0
     }
   },
   "directories": {
