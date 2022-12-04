@@ -31,7 +31,8 @@
   "dependencies": {
     "@mediafish/amf0": "0.0.5",
     "@mediafish/buffer-operator": "0.1.2",
-    "@mediafish/flv": "^0.2.2"
+    "@mediafish/flv": "^0.2.2",
+    "debug": "^4.3.4"
   },
   "devDependencies": {
     "ava": "^5.1.0",
