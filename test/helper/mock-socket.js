@@ -1,5 +1,5 @@
-const {Duplex} = require('stream');
-const {req, res} = require('../fixture/messages');
+import {Duplex} from 'node:stream';
+import {req, res} from '../fixture/messages.js';
 
 class MockSocket extends Duplex {
   constructor(t, options = {}) {
@@ -90,4 +90,4 @@ class MockSocket extends Duplex {
   }
 }
 
-module.exports = MockSocket;
+export default MockSocket;

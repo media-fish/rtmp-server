@@ -1,9 +1,10 @@
-const debug = require('debug');
-const amf0Util = require('@mediafish/amf0');
-const protoCtrlUtil = require('./protocol-control');
-const chunkUtil = require('./chunk');
-const RTMPConnection = require('../connection');
-const RTMPStream = require('../stream');
+import {Buffer} from 'node:buffer';
+import debug from 'debug';
+import {readValue, writeValue} from '@mediafish/amf0';
+import RTMPConnection from '../connection.js';
+import RTMPStream from '../stream.js';
+import * as protoCtrlUtil from './protocol-control.js';
+import * as chunkUtil from './chunk.js';
 
 const print = debug('rtmp-server');
 
@@ -37,7 +38,7 @@ function getEventName(event, emitter, sameFunc) {
   return '';
 }
 
-function processMessage(connMgr, {data, messageHeader}) {
+export function processMessage(connMgr, {data, messageHeader}) {
   // print(`[Command] processMessage(data.length=${data.length}) --- Enter`);
   // print(JSON.stringify(data, null, 4));
   const command = readCommand(data);
@@ -65,8 +66,8 @@ function processConnect(connMgr, {data, transactionId}) {
       {
         level: 'error',
         code: 'NetConnection.Connect.Failed',
-        description: 'Connection failed.'
-      }
+        description: 'Connection failed.',
+      },
     ]);
     return new Error(`Unsupported path: "${data.app}"`);
   }
@@ -80,14 +81,14 @@ function processConnect(connMgr, {data, transactionId}) {
   sendResponse(socket, '_result', transactionId, [
     {
       fmsVer: 'FMS/3,0,1,123',
-      capabilities: 31
+      capabilities: 31,
     },
     {
       level: 'status',
       code: 'NetConnection.Connect.Success',
       description: 'Connection succeeded.',
-      objectEncoding: 0 // AMF0
-    }
+      objectEncoding: 0, // AMF0
+    },
   ]);
   connMgr.connection = new RTMPConnection(event);
   connMgr.state = 'connected';
@@ -137,13 +138,13 @@ function createOnStatusResponse(err) {
   const infoObj = err ? {
     level: 'error',
     code: 'NetStream.Publish.Failed',
-    description: 'Unable to start publishing'
+    description: 'Unable to start publishing',
   } : {
     level: 'status',
     code: 'NetStream.Publish.Start',
     description: 'Start publishing',
-    audioCodecs: 0x0400, // SUPPORT_SND_AAC
-    videoCodecs: 0x0080 // SUPPORT_VID_H264
+    audioCodecs: 0x04_00, // SUPPORT_SND_AAC
+    videoCodecs: 0x00_80, // SUPPORT_VID_H264
   };
   return [null, infoObj];
 }
@@ -151,23 +152,23 @@ function createOnStatusResponse(err) {
 function readCommand(data) {
   // print(`[Command] readCommand(data.length=${data.length}) --- Enter`);
   let offset = 0, name = '', transactionId = 0, command = null, publishingName = '', publishingType = '';
-  [offset, name] = amf0Util.readValue(data, offset);
-  [offset, transactionId] = amf0Util.readValue(data, offset);
+  [offset, name] = readValue(data, offset);
+  [offset, transactionId] = readValue(data, offset);
   // print(`[Command] readCommand: name="${name}", transaction ID=${transactionId}`);
   switch (name) {
     case 'connect':
     case 'createStream':
-      [offset, command] = amf0Util.readValue(data, offset);
+      [offset, command] = readValue(data, offset);
       break;
     case 'releaseStream':
     case 'FCPublish':
-      [offset] = amf0Util.readValue(data, offset);
-      [offset, command] = amf0Util.readValue(data, offset);
+      [offset] = readValue(data, offset);
+      [offset, command] = readValue(data, offset);
       break;
     case 'publish':
-      [offset] = amf0Util.readValue(data, offset); // Null Object
-      [offset, publishingName] = amf0Util.readValue(data, offset);
-      [offset, publishingType] = amf0Util.readValue(data, offset);
+      [offset] = readValue(data, offset); // Null Object
+      [offset, publishingName] = readValue(data, offset);
+      [offset, publishingType] = readValue(data, offset);
       command = {publishingName, publishingType};
       break;
     default:
@@ -175,7 +176,7 @@ function readCommand(data) {
   }
   // Skip to the end
   while (offset < data.length) {
-    [offset] = amf0Util.readValue(data, offset);
+    [offset] = readValue(data, offset);
   }
   // print(`[Command] readCommand() --- Exit`);
   return {name, transactionId, data: command};
@@ -185,7 +186,7 @@ function sendResponse(socket, name, transactionId, params) {
   const response = {
     name,
     transactionId,
-    params
+    params,
   };
   const len = writeResponse(null, 0, response);
   const buff = Buffer.alloc(len);
@@ -195,14 +196,14 @@ function sendResponse(socket, name, transactionId, params) {
 }
 
 function writeResponse(buffer, offset, {name, transactionId, params}) {
-  offset = amf0Util.writeValue(buffer, offset, name);
-  offset = amf0Util.writeValue(buffer, offset, transactionId);
+  offset = writeValue(buffer, offset, name);
+  offset = writeValue(buffer, offset, transactionId);
   if (params) {
     for (const param of params) {
-      offset = amf0Util.writeValue(buffer, offset, param);
+      offset = writeValue(buffer, offset, param);
     }
   } else {
-    offset = amf0Util.writeValue(buffer, offset, null);
+    offset = writeValue(buffer, offset, null);
   }
   return offset;
 }
@@ -214,11 +215,7 @@ function writeMessage(buffer, socket) {
     delta: 0,
     messageLength: buffer.length,
     messageTypeId: 20,
-    messageStreamId: 0
+    messageStreamId: 0,
   };
   chunkUtil.writeProtocolMessage(socket, msgHeader, buffer, 3);
 }
-
-module.exports = {
-  processMessage
-};

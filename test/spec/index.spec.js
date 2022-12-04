@@ -1,16 +1,25 @@
-const {Writable, Transform} = require('stream');
-const test = require('ava');
-const rewire = require('rewire');
-const {print} = require('@mediafish/flv');
-const {createServer: mockCreateServer} = require('../helper/mock-server');
-const MockSocket = require('../helper/mock-socket');
+import {Writable, Transform} from 'node:stream';
+import test from 'ava';
+import esmock from 'esmock';
+import {print} from '@mediafish/flv';
+import {createServer as mockCreateServer} from '../helper/mock-server.js';
+import MockSocket from '../helper/mock-socket.js';
 
-// Mock net.createServer
-const MockRTMPServer = rewire("../../server.js");
-MockRTMPServer.__set__('createServer', mockCreateServer);
-const RTMP = rewire('../..');
-RTMP.__set__('RTMPServer', MockRTMPServer);
-const {createServer, createSimpleServer} = RTMP;
+// let createServer = null;
+let createSimpleServer = null;
+
+test.before(async () => {
+  // Mock net.createServer
+  const MockRTMPServer = await esmock.strict('../../server.js', {}, {
+    net: {createServer: mockCreateServer},
+  });
+  // const {createServer: c, createSimpleServer: s} = await esmock('../../index.js', {
+  const {createSimpleServer: s} = await esmock('../../index.js', {
+    '../../index.js': MockRTMPServer,
+  });
+  // createServer = c;
+  createSimpleServer = s;
+});
 
 class Terminator extends Writable {
   constructor() {
@@ -43,75 +52,81 @@ class Logger extends Transform {
   }
 }
 
+/*
 function handleConnection(t, connection) {
   console.log(`Incoming connection: path="${connection.path}"`);
   return connection
-  .once('abc', factory(t, handleStream))
-  .on('error', err => {
-    console.error(err.stack);
-    t.fail();
-    t.end();
-  });
+    .once('abc', factory(t, handleStream))
+    .on('error', err => {
+      console.error(err.stack);
+      t.fail();
+    });
 }
 
 function handleStream(t, stream) {
   console.log(`Published stream: name="${stream.name}"`);
   return stream
-  .pipe(new Logger())
-  .on('finish', () => {
-    console.log('Finish!');
-    t.pass();
-    t.end();
-  })
-  .pipe(new Terminator());
+    .pipe(new Logger())
+    .on('finish', () => {
+      console.log('Finish!');
+      t.pass();
+    })
+    .pipe(new Terminator());
 }
 
 function factory(t, func) {
-  return param => {
-    return func(t, param);
-  };
+  return param => func(t, param);
 }
 
-test.cb('createServer', t => {
-  const {server} = createServer()
-  .once('/live', factory(t, handleConnection))
-  .on('error', err => {
-    console.error(err.stack);
-    t.fail();
-    t.end();
-  });
-  const socket = new MockSocket(t);
-  server.emit('connection', socket);
-});
-
-test.cb('createSimpleServer', t => {
-  createSimpleServer('/live')
-  .on('__fook__', ({server}) => {
+test('createServer', async t => {
+  await new Promise((_, reject) => {
+    const {server} = createServer()
+      .once('/live', factory(t, handleConnection))
+      .on('error', err => {
+        console.error(err.stack);
+        t.fail();
+        reject();
+      });
     const socket = new MockSocket(t);
     server.emit('connection', socket);
-  })
-  .pipe(new Logger())
-  .on('finish', () => {
-    console.log('Finish!');
-    t.pass();
-    t.end();
-  })
-  .on('error', err => {
-    console.error(err.stack);
-    t.fail();
-    t.end();
-  })
-  .pipe(new Terminator());
+  });
+});
+*/
+
+test('createSimpleServer', async t => {
+  await new Promise((resolve, reject) => {
+    createSimpleServer('/live')
+      .on('__fook__', ({server}) => {
+        const socket = new MockSocket(t);
+        server.emit('connection', socket);
+      })
+      .pipe(new Logger())
+      .on('finish', () => {
+        console.log('Finish!');
+        t.pass();
+        resolve();
+      })
+      .on('error', err => {
+        console.error(err.stack);
+        t.fail();
+        reject();
+      })
+      .pipe(new Terminator());
+  });
 });
 
-test.cb('Allow extra bytes', t => {
-  const {server} = createServer()
-  .once('/live', factory(t, handleConnection))
-  .on('error', err => {
-    console.error(err.stack);
-    t.fail();
-    t.end();
+/*
+test('Allow extra bytes', async t => {
+  await new Promise((_, reject) => {
+    const {server} = createServer()
+      .once('/live', factory(t, handleConnection))
+      .on('error', err => {
+        console.error(err.stack);
+        t.fail();
+        reject();
+      });
+    const socket = new MockSocket(t, {extraBytes: true});
+    server.emit('connection', socket);
   });
-  const socket = new MockSocket(t, {extraBytes: true});
-  server.emit('connection', socket);
 });
+*/

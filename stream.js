@@ -1,9 +1,9 @@
-const {Readable} = require('stream');
-// const debug = require('debug');
+import {Readable} from 'node:stream';
+// import debug from 'debug';
 
 // const print = debug('rtmp-server');
 
-class RTMPStream extends Readable {
+export default class RTMPStream extends Readable {
   constructor(name, streamId) {
     super({objectMode: true});
     this.name = name;
@@ -14,5 +14,3 @@ class RTMPStream extends Readable {
     // Data will be pushed by ConnectionManager
   }
 }
-
-module.exports = RTMPStream;

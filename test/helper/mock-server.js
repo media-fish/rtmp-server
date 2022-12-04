@@ -1,4 +1,5 @@
-const EventEmitter = require('events');
+import {EventEmitter} from 'node:events';
+import process from 'node:process';
 
 class MockServer extends EventEmitter {
   constructor(...params) {
@@ -27,8 +28,7 @@ class MockServer extends EventEmitter {
   }
 }
 
-function createServer(...params) {
+export function createServer(...params) {
   return new MockServer(...params);
 }
 
-module.exports = {createServer};

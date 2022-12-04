@@ -5,29 +5,23 @@ class RTMPMessage {
   }
 }
 
-class Video extends RTMPMessage {
+export class Video extends RTMPMessage {
   constructor(timestamp, data) {
     super('video', timestamp);
     this.data = data;
   }
 }
 
-class Audio extends RTMPMessage {
+export class Audio extends RTMPMessage {
   constructor(timestamp, data) {
     super('audio', timestamp);
     this.data = data;
   }
 }
 
-class Data extends RTMPMessage {
+export class Data extends RTMPMessage {
   constructor(timestamp, data) {
     super('data', timestamp);
     this.data = data;
   }
 }
-
-module.exports = {
-  Video,
-  Audio,
-  Data
-};

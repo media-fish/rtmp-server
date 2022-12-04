@@ -1,3 +1,5 @@
+import {Buffer} from 'node:buffer';
+
 let base = 0;
 let str = '';
 
@@ -141,23 +143,22 @@ str = `
 
 writeBody(PUBLISH_RES, str, base);
 
-module.exports = {
-  req: {
-    S0S1S2,
-    CHUNKSIZE,
-    CONNECT,
-    STREAM,
-    PUBLISH,
-    PARAMS,
-    AUDIO,
-    AUDIO_WITH_EXTRA_BYTES,
-    VIDEO,
-    VIDEO_WITH_EXTRA_BYTES
-  },
-  res: {
-    S0S1S2,
-    CONNECT: CONNECT_RES,
-    STREAM: STREAM_RES,
-    PUBLISH: PUBLISH_RES
-  }
+export const req = {
+  S0S1S2,
+  CHUNKSIZE,
+  CONNECT,
+  STREAM,
+  PUBLISH,
+  PARAMS,
+  AUDIO,
+  AUDIO_WITH_EXTRA_BYTES,
+  VIDEO,
+  VIDEO_WITH_EXTRA_BYTES,
+};
+
+export const res = {
+  S0S1S2,
+  CONNECT: CONNECT_RES,
+  STREAM: STREAM_RES,
+  PUBLISH: PUBLISH_RES,
 };
